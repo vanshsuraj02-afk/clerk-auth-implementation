@@ -1,69 +1,64 @@
-import Image from "next/image";
+import { Show, UserButton } from '@clerk/nextjs'
+import { currentUser } from '@clerk/nextjs/server'
+import Link from 'next/link'
 
-export default function Home() {
+export default async function Home() {
+  const user = await currentUser()
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.js
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex flex-1 items-center justify-center p-6">
+      <div className="max-w-xl w-full text-center space-y-6">
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+          Clerk Authentication
+        </h1>
+        <p className="text-lg text-zinc-600 dark:text-zinc-400">
+          Next.js app with custom Google and GitHub OAuth authentication, built using JavaScript.
+        </p>
+
+        <Show when="signed-out">
+          <div className="flex justify-center gap-4 pt-4">
+            <Link
+              href="/sign-in"
+              className="rounded-lg bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 transition"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Sign In with Google / GitHub
+            </Link>
+            <Link
+              href="/sign-up"
+              className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              Create Account
+            </Link>
+          </div>
+        </Show>
+
+        <Show when="signed-in">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 text-left space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">User Profile</h2>
+              <UserButton />
+            </div>
+            {user && (
+              <div className="text-sm space-y-1 text-zinc-600 dark:text-zinc-400">
+                <p>
+                  <strong className="text-zinc-900 dark:text-zinc-100">Name:</strong>{' '}
+                  {user.firstName ? `${user.firstName} ${user.lastName || ''}` : 'N/A'}
+                </p>
+                <p>
+                  <strong className="text-zinc-900 dark:text-zinc-100">Email:</strong>{' '}
+                  {user.emailAddresses?.[0]?.emailAddress || 'N/A'}
+                </p>
+                <p>
+                  <strong className="text-zinc-900 dark:text-zinc-100">User ID:</strong>{' '}
+                  <code className="bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-xs">
+                    {user.id}
+                  </code>
+                </p>
+              </div>
+            )}
+          </div>
+        </Show>
+      </div>
     </div>
-  );
+  )
 }
